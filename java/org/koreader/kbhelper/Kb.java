@@ -39,7 +39,7 @@ public final class Kb {
             super.onSelectionChanged(s, e);
             if (!suppress) capture();
         }
-        // Many IMEs (e.g. Trime) send ASCII/backspace via sendKeyEvent(). By default that goes
+        // Many IMEs send ASCII/backspace via sendKeyEvent(). By default that goes
         // through the window input queue, which NativeActivity hands to native code, so
         // route those events to this view instead.
         @Override public InputConnection onCreateInputConnection(EditorInfo info) {

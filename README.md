@@ -4,7 +4,7 @@ Use Android's own on-screen keyboard (IME) in KOReader text fields, so you get p
 stylus/handwriting keyboards instead of KOReader's built-in virtual keyboard.
 
 > **Note: this project is 100% AI-generated code** (written by Claude, an AI assistant). It has only been tested
-> on one device (an Onyx Boox-style Android e-ink tablet using the Onyx Trime keyboard). Review it before relying on it.
+> on a single Android e-ink device with one keyboard app. Review it before relying on it.
 
 ## How it works
 
