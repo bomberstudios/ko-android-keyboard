@@ -97,7 +97,6 @@ local function tick()
 end
 
 local function startSession(ib)
-    if session and session.ib ~= ib then UIManager:unschedule(tick) end
     local text, cursor = table.concat(ib.charlist or {}), (ib.charpos or 1) - 1
     local input_type, ime, single
     single = ib.enter_callback ~= nil
@@ -113,10 +112,11 @@ local function startSession(ib)
         Bridge:reshow() -- same field: keep the existing EditText (and its state)
         return
     end
-    local was_active = session ~= nil
     session = { ib = ib, text = text, pos = cursor }
     Bridge:show(text, cursor, input_type, ime, single)
-    if not was_active then UIManager:scheduleIn(POLL_INTERVAL, tick) end
+    -- (Re)start polling; a previous session's timer may have been cancelled or still be pending.
+    UIManager:unschedule(tick)
+    UIManager:scheduleIn(POLL_INTERVAL, tick)
 end
 
 -- Drop-in replacement for VirtualKeyboard, as far as InputText/InputDialog care.
