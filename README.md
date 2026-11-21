@@ -48,3 +48,7 @@ Needs a JDK and the Android SDK (`ANDROID_HOME`, default `~/Library/Android/sdk`
   keyboard height isn't known until it has been shown. The height is remembered for later dialogs.
 - Only the cursor is mirrored from the IME, not text selections.
 - Characters outside the Basic Multilingual Plane (e.g. emoji) may not round-trip correctly.
+
+## License
+
+[MIT](LICENSE) © 2026 Ale Muñoz
