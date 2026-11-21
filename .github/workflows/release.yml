@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (must already exist)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build kbhelper.dex
+        run: ./build.sh
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME || '/usr/local/lib/android/sdk' }}
+
+      - name: Package plugin
+        run: zip -r androidkeyboard.koplugin.zip androidkeyboard.koplugin
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" androidkeyboard.koplugin.zip --clobber
+          else
+            gh release create "$TAG" androidkeyboard.koplugin.zip \
+              --title "$TAG" --generate-notes \
+              --notes "Unzip into KOReader's \`plugins/\` folder and restart. See the README for details. This project is 100% AI-generated code."
+          fi
