@@ -6,6 +6,19 @@ stylus/handwriting keyboards instead of KOReader's built-in virtual keyboard.
 > **Note: this project is 100% AI-generated code** (written by Claude, an AI assistant). It has only been tested
 > on a single Android e-ink device with one keyboard app. Review it before relying on it.
 
+## Install
+
+**[Download the latest release](https://github.com/bomberstudios/ko-android-keyboard/releases/latest/download/androidkeyboard.koplugin.zip)**
+(`androidkeyboard.koplugin.zip`; see all versions on the [releases page](https://github.com/bomberstudios/ko-android-keyboard/releases/latest)).
+
+1. Unzip it and copy the `androidkeyboard.koplugin` folder (including `kbhelper.dex`) to KOReader's `plugins/` folder
+   on your device (e.g. `/sdcard/koreader/plugins/`), for example with
+   `adb push androidkeyboard.koplugin /sdcard/koreader/plugins/`.
+2. Restart KOReader.
+3. Toggle it under Settings (gear) → *Android native keyboard*. Dialogs that are already open keep their old keyboard.
+
+If the helper can't be loaded, the plugin shows a message and keeps KOReader's own keyboard.
+
 ## How it works
 
 KOReader's `NativeActivity` gives the system keyboard no `InputConnection`, which is why swipe, predictions and
@@ -22,16 +35,6 @@ handwriting can't work out of the box. This plugin adds one without modifying th
 - The helper reports the IME height. The stub passes it to the dialog (`onKeyboardHeightChanged`) so the text
   field is laid out above the keyboard instead of underneath it.
 - Number and password fields get the matching Android input type.
-
-## Install
-
-1. Copy `androidkeyboard.koplugin/` (including `kbhelper.dex`) to KOReader's `plugins/` folder
-   (e.g. `/sdcard/koreader/plugins/`), for example with
-   `adb push androidkeyboard.koplugin /sdcard/koreader/plugins/`.
-2. Restart KOReader.
-3. Toggle it under Settings (gear) → *Android native keyboard*. Dialogs that are already open keep their old keyboard.
-
-If the helper can't be loaded, the plugin shows a message and keeps KOReader's own keyboard.
 
 ## Rebuilding the helper
 
