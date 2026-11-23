@@ -23,20 +23,27 @@ local function withEnv(fn)
     end)
 end
 
+-- A JNI call on a null object aborts the whole app, so check every object first.
+local function nn(v, what)
+    if v == nil then error(what .. " is null") end
+    return v
+end
+
 local function jstr(env, s) return env[0].NewStringUTF(env, s) end
 
 -- dex_src: path of kbhelper.dex inside the plugin. Returns true on success.
 function Bridge:load(dex_src)
     if self.cls then return true end
     local ok = withEnv(function(env, jni)
+        -- (Android 8.0 throws an NPE from DexClassLoader unless optimizedDirectory is non-null.)
         -- Copy to the app's private code cache and make it read-only (required on Android 14+).
-        local cache = jni:callObjectMethod(activity(), "getCodeCacheDir", "()Ljava/io/File;")
-        local cache_path = jni:to_string(jni:callObjectMethod(cache, "getAbsolutePath", "()Ljava/lang/String;"))
+        local cache = nn(jni:callObjectMethod(nn(activity(), "activity"), "getCodeCacheDir", "()Ljava/io/File;"), "code cache dir")
+        local cache_path = jni:to_string(nn(jni:callObjectMethod(cache, "getAbsolutePath", "()Ljava/lang/String;"), "cache path"))
         local dst = cache_path .. "/kbhelper.dex"
 
         local fcls = env[0].FindClass(env, "java/io/File")
         local fctor = env[0].GetMethodID(env, fcls, "<init>", "(Ljava/lang/String;)V")
-        local old = env[0].NewObject(env, fcls, fctor, jstr(env, dst))
+        local old = nn(env[0].NewObject(env, fcls, fctor, jstr(env, dst)), "File")
         local exists = jni:callBooleanMethod(old, "exists", "()Z")
         if exists ~= 0 and exists ~= false then
             jni:callBooleanMethod(old, "setWritable", "(Z)Z", 1)
@@ -46,17 +53,17 @@ function Bridge:load(dex_src)
         if not i then error("cannot read " .. dex_src) end
         local data = i:read("*a"); i:close()
         local o = assert(io.open(dst, "wb")); o:write(data); o:close()
-        local f = env[0].NewObject(env, fcls, fctor, jstr(env, dst))
+        local f = nn(env[0].NewObject(env, fcls, fctor, jstr(env, dst)), "File")
         jni:callBooleanMethod(f, "setReadOnly", "()Z")
 
         local lcls = env[0].FindClass(env, "dalvik/system/DexClassLoader")
         local lctor = env[0].GetMethodID(env, lcls, "<init>",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/ClassLoader;)V")
-        local parent = jni:callObjectMethod(activity(), "getClassLoader", "()Ljava/lang/ClassLoader;")
-        local loader = env[0].NewObject(env, lcls, lctor, jstr(env, dst), nil, nil, parent)
+        local parent = nn(jni:callObjectMethod(activity(), "getClassLoader", "()Ljava/lang/ClassLoader;"), "parent class loader")
+        local loader = nn(env[0].NewObject(env, lcls, lctor, jstr(env, dst), jstr(env, cache_path), nil, parent), "DexClassLoader")
         local cls = jni:callObjectMethod(loader, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;",
             jstr(env, "org.koreader.kbhelper.Kb"))
-        if cls == nil then error("class not found") end
+        nn(cls, "Kb class")
         self.cls = env[0].NewGlobalRef(env, cls)
 
         local mid = env[0].GetStaticMethodID(env, self.cls, "init", "(Landroid/app/Activity;)V")
