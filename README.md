@@ -4,7 +4,7 @@ Use Android's own on-screen keyboard (IME) in KOReader text fields, so you get p
 stylus/handwriting keyboards instead of KOReader's built-in virtual keyboard.
 
 > **Note: this project is 100% AI-generated code** (written by Claude, an AI assistant). It has only been tested
-> on a single Android e-ink device with one keyboard app. Review it before relying on it.
+> on two Android devices: an e-ink device and an Android 8.0 tablet. Review it before relying on it.
 
 ## Install
 
@@ -46,7 +46,7 @@ Needs a JDK and the Android SDK (`ANDROID_HOME`, default `~/Library/Android/sdk`
 
 ## Known limitations
 
-- Android only. Tested on a single device and IME.
+- Android only. Tested on two devices (Android 8.0 and a newer e-ink device); other devices and keyboard apps may behave differently.
 - The first time a dialog opens in a session it may re-layout once after the keyboard appears, because the
   keyboard height isn't known until it has been shown. The height is remembered for later dialogs.
 - Only the cursor is mirrored from the IME, not text selections.
